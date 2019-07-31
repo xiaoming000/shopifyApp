@@ -11,6 +11,17 @@
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::get('/', "AppAuthController@index");
+
+Route::group(['namespace'=>'Admin'],function(){
+
+	Route::get("/admin", "IndexController@index");
+
 });
+
+Route::group(['namespace'=>'Order'],function(){
+
+	Route::get("/order", "OrderController@index");
+
+});
+
