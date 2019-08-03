@@ -12,6 +12,7 @@
 */
 
 Route::get('/', "AppAuthController@index");
+Route::get('/confirmInstall', "AppAuthController@confirmInstall");
 
 Route::group(['namespace'=>'Admin'],function(){
 
