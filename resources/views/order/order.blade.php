@@ -1,5 +1,10 @@
 @extends('admin')
 
 @section('content')
-    <div style="padding: 15px;">订单主页</div>
+    <div class="container">
+        @foreach ($order_variant as $user)
+            {{ $user->id }}
+        @endforeach
+    </div>
+
 @endsection

@@ -22,6 +22,7 @@ class IndexController extends Controller
 		$response = $common -> shopifyHttp($shopRequestUrl);
 		$response = json_decode($response,true);
 		$shop_name = $response['shop']['name'];
+		
 		return view('admin.admin',['shop_name'=>$shop_name]);
 	}
 

@@ -47,7 +47,7 @@
         <li class="layui-nav-item layui-nav-itemed">
           <a class="" href="javascript:;">订单管理</a>
           <dl class="layui-nav-child">
-            <dd><a href="javascript:;">所有订单</a></dd>
+            <dd><a href="order">所有订单</a></dd>
             <dd><a href="javascript:;">异常订单</a></dd>
             <!-- <dd><a href="javascript:;">列表三</a></dd> -->
           </dl>
@@ -71,7 +71,7 @@
     <!-- 内容主体区域 -->
     <!-- <div style="padding: 15px;">admin主页 内容待计划</div> -->
     @yield('content')
-  </div>
+  </div> 
   
   <div class="layui-footer">
     <!-- 底部固定区域 -->
