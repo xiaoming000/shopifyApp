@@ -41,7 +41,8 @@ class Common
     // shopify,http_curl请求 通过session自动设置access_token请求头
     public function shopifyHttp($url,$method="get",$arr="",$access_token=""){
         if (empty($access_token)) {
-           $shop = session("shop");
+        //    $shop = session("shop");
+           $shop = "xn-4gq48l9y6ap6sf0q.myshopify.com";
            $shopToken = new ShopToken();
            $access_token = $shopToken -> getTokenByShop($shop);
            if (empty($access_token)) {

@@ -8,14 +8,27 @@ use App\Http\Common;
 use App\Models\OrderVariant;
 
 class OrderController extends Controller
-{    
-	public function index(){
+{
+	public function index(Request $request)
+	{
 		$order_variant = OrderVariant::paginate(2);
 
-		return view('order.order', [
-			'order_variant' => $order_variant,
-			'shop_name' => 'test',
-			]);
-	}
+		$res = [
+			'code' => 0,
+			'msg' => "",
+			'count' => 1000,
+			'data' => [
+				[
+					'id' => 1,
+					'username' => 'cc',
+					'sex' => 'man',
+				],
+			]
+		];
 
+		// return \json_encode($res);
+		// return view('order.order', ['order_variant' => $order_variant]);
+		return view('order.order', $res);
+
+	}
 }
