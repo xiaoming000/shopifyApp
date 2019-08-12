@@ -79,4 +79,12 @@ class Common
 
     }
 
+        /**
+     * 发送邮件
+     */
+    public function sendMail()
+    {
+        
+    }
+
 }
