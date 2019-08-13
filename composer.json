@@ -12,7 +12,11 @@
         "fideloper/proxy": "^4.0",
         "laravel/framework": "5.8.*",
         "laravel/tinker": "^1.0",
+<<<<<<< HEAD
       "ext-json": "*"
+=======
+        "phpmailer/phpmailer": "^6.0"
+>>>>>>> c9902d2d8e9ead3f0ea30ca4ac9568fe1782fae3
     },
     "require-dev": {
         "beyondcode/laravel-dump-server": "^1.0",

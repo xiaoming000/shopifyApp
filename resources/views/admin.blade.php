@@ -44,7 +44,7 @@
       <li class="layui-nav-item"><a href="{{url('home')}}">HOME</a></li>
     </ul>
   </div>
-  
+
   <div class="layui-side layui-bg-black">
     <div class="layui-side-scroll">
       <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
@@ -71,7 +71,7 @@
       </ul>
     </div>
   </div>
-  
+
   <div class="layui-body">
     <!-- 内容主体区域 -->
     <!-- <div style="padding: 15px;">admin主页 内容待计划</div> -->
