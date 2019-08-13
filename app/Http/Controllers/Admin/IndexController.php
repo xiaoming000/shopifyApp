@@ -29,6 +29,7 @@ class IndexController extends Controller
 
     /**
      * @param $id
+     * @return \Illuminate\Http\RedirectResponse|\Illuminate\Routing\Redirector
      * @author xiaoxiaoming
      * @desc 用户选择店铺
      * @date 2019/8/13
