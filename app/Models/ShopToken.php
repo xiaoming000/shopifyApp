@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\DB;
 class ShopToken extends Model
 {
 	protected $table = "shop_token";
+
+	public function hasManyOrder()
+	{
+		return $this->hasMany(Order::class);
+	}
     
 	public function getTokenByShop($shop){
 

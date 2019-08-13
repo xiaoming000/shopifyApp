@@ -2,6 +2,8 @@
 
 namespace App\Console\Commands;
 
+use App\Http\Common;
+use App\Models\ShopToken;
 use Illuminate\Console\Command;
 
 class CheckOrderIn extends Command
@@ -38,6 +40,11 @@ class CheckOrderIn extends Command
     public function handle()
     {
         //获取每个店铺的订单写入order表，同时更新variant stock
+        foreach (ShopToken::class as $shop_token){
+            $response = Common::getOrder($shop_token);
+            $response = json_decode($response, true);
 
+            var_dump($response);
+        }
     }
 }

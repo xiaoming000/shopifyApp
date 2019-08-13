@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Common;
 use App\Models\OrderVariant;
+use App\Models\ShopToken;
+use Exception;
 
 class OrderController extends Controller
 {
@@ -41,9 +43,35 @@ class OrderController extends Controller
 				'id' => 1,
 				'username' => 'cc',
 				'sex' => 'man',
-			]
+			],
+			[
+				'id' => 2,
+				'username' => 'cc',
+				'sex' => 'am',
+			],
 		];
 
-		return $data;
+		return view('order.order', $data);
+		
+	}
+
+	public function getOrder()
+	{
+		//获取每个店铺的订单写入order表，同时更新variant stock
+		$common = new Common();
+		$api_name = 'orders';
+
+		foreach (ShopToken::all() as $shop_token){
+			try{
+				$response = $common->getData($shop_token, $api_name);
+				$response = json_decode($response, true);
+
+				dd($response);
+
+			} catch(Exception $e) {
+				echo 'Message: ' . $e->getMessage();
+			}
+			
+		}
 	}
 }

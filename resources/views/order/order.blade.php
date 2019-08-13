@@ -71,6 +71,7 @@
         <div class="layui-body">
             <!-- 内容主体区域 -->
             <!-- <div style="padding: 15px;">admin主页 内容待计划</div> -->
+
             <div style="margin-bottom: 5px;">
 
                 <!-- 示例-970 -->
@@ -84,15 +85,16 @@
                 <button class="layui-btn" data-type="isAll">验证是否全选</button>
             </div>
 
-            <table class="layui-table" lay-data="{width: 892, height:330, url:'/order', page:true, id:'idTest'}" lay-filter="demo">
-                <thead>
+            <table class="layui-table" lay-filter="demo">
+                <tbody>
                     <tr>
-                        <th lay-data="{type:'checkbox', fixed: 'left'}"></th>
-                        <th lay-data="{field:'id', width:80, sort: true, fixed: true}">ID</th>
-                        <th lay-data="{field:'username', width:80}">用户名</th>
-                        <th lay-data="{field:'sex', width:80, sort: true}">性别</th>
+                        <td>id</td>
+                        <td>username</td>
                     </tr>
-                </thead>
+                    <tr>
+                        <td>{{ $code }}</td>
+                    </tr>
+                </tbody>
             </table>
 
         </div>
@@ -108,6 +110,18 @@
         layui.use('element', function() {
             var element = layui.element;
 
+        });
+    </script>
+
+    <script>
+        var table = layui.table;
+
+        //转换静态表格
+        table.init('demo', {
+            height: 315 //设置高度
+                ,
+            limit: 10 //注意：请务必确保 limit 参数（默认：10）是与你服务端限定的数据条数一致
+            //支持所有基础参数
         });
     </script>
 

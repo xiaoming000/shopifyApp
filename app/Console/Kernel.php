@@ -29,7 +29,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
-        $schedule->command('command:CheckOrderIn')->hourly();
+        $schedule->command('command:CheckOrderIn')->everyMinute();
     }
 
     /**
