@@ -10,7 +10,7 @@ class Order extends Model
 {
     protected $table = 'order';
 
-    protected $fillable = ['id', 'shopify_id', 'shop_id', 'email', 'phone', 'is_paid', 'is_send', 'is_close'];
+    protected $fillable = ['id', 'shopify_id', 'shop_token_id', 'email', 'phone', 'total_price', 'financial_status', 'is_send', 'is_close', 'shopify_created_at', 'shopify_updated_at'];
 
     public function hasManyVariant()
     {
