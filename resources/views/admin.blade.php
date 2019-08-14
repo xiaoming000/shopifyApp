@@ -53,11 +53,11 @@
           <a class="" href="javascript:;">订单管理</a>
           <dl class="layui-nav-child">
             <dd><a href="{{url('order')}}">已付款订单</a></dd>
-            <dd><a href="javascript:;">其他订单</a></dd>
+            <!-- <dd><a href="javascript:;">其他订单</a></dd> -->
             <!-- <dd><a href="javascript:;">列表三</a></dd> -->
           </dl>
         </li>
-        <li class="layui-nav-item">
+        <!-- <li class="layui-nav-item">
           <a href="javascript:;">商品管理</a>
           <dl class="layui-nav-child">
             <dd><a href="javascript:;">列表一</a></dd>
@@ -67,7 +67,7 @@
         </li>
         <li class="layui-nav-item"><a href="">用户管理</a></li>
         <li class="layui-nav-item"><a href="">配置管理</a></li>
-        <li class="layui-nav-item"><a href="">系统管理</a></li>
+        <li class="layui-nav-item"><a href="">系统管理</a></li> -->
       </ul>
     </div>
   </div>
