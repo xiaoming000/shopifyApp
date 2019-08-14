@@ -25,20 +25,26 @@
       </li> -->
     </ul>
     <ul class="layui-nav layui-layout-right">
-      <li class="layui-nav-item">
-<!--         <a href="javascript:;">
-          <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
-          贤心
+
+      <li class="layui-nav-item" style="margin-right: 80px;">
+        <a href="javascript:;">
+        <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
+          @if(auth()->check())
+            {{auth()->user()->name}}
+          @endif
         </a>
         <dl class="layui-nav-child">
-          <dd><a href="">基本资料</a></dd>
-          <dd><a href="">安全设置</a></dd>
-        </dl> -->
+          @if(!empty(session('shops')))
+            @foreach(json_decode(session('shops'),true) as $shop)
+              <dd><a href="">{{$shop['shop_name']}}</a></dd>
+            @endforeach
+          @endif
+        </dl>
       </li>
-      <!-- <li class="layui-nav-item"><a href="">退了</a></li> -->
+      <li class="layui-nav-item"><a href="{{url('home')}}">HOME</a></li>
     </ul>
   </div>
-  
+
   <div class="layui-side layui-bg-black">
     <div class="layui-side-scroll">
       <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
@@ -65,12 +71,12 @@
       </ul>
     </div>
   </div>
-  
+
   <div class="layui-body">
     <!-- 内容主体区域 -->
     <!-- <div style="padding: 15px;">admin主页 内容待计划</div> -->
     @yield('content')
-  </div> 
+  </div>
   
   <div class="layui-footer">
     <!-- 底部固定区域 -->

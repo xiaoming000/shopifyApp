@@ -12,12 +12,14 @@
 */
 
 
-Route::get('/shopify', "AppAuthController@index");
+Route::get('/', "AppAuthController@index");
 Route::get('/confirmInstall', "AppAuthController@confirmInstall");
+Route::any('/register_shop', "AppAuthController@registerShop");
 
-Route::group(['namespace'=>'Admin'],function(){
+Route::group(['prefix'=>'admin','namespace'=>'Admin'],function(){
 
-	Route::get("/admin", "IndexController@index");
+	Route::get("/", "IndexController@index");
+	Route::get("/shop/{id}", "IndexController@shop");
 
 });
 
@@ -30,3 +32,7 @@ Route::group(['namespace'=>'Order'],function(){
 
 });
 
+
+Auth::routes();
+
+Route::get('/home', 'HomeController@index')->name('home');
