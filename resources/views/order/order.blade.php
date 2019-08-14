@@ -5,7 +5,7 @@
 <div style="padding: 15px;">
     <form class="layui-form" action="">
         <div class="layui-form-item">
-        <input type="text" name="title" placeholder="订单号" class="layui-input">
+            <input type="text" name="title" placeholder="订单号" class="layui-input">
             <button type="button" class="layui-btn">搜索</button>
         <div class="layui-form-item">
     </form>
@@ -34,11 +34,12 @@
                         <a href= {{ $good['url'] }}>{{ $good['title'] }}</a></br>
                     @endforeach
                 </td>
-                <td>{{ $d['order_total_price'] }}</td>
+                <td>{{ $d['order_total_price'] }}$</td>
                 <td>
                     @if ($d['order_is_send'])
                         <p>已发货</p>
                     @else
+                        <input type="text" name="title" placeholder="跟踪号" class="layui-input">
                         <button type="button" class="layui-btn">发货</button>
                     @endif
                 </td>

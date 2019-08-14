@@ -46,6 +46,7 @@ class OrderController extends Controller
 
 		$data = [];
 		foreach($orders as $k => $order) {
+
 			$data[$k] = [
 				'order_id' => $order->shopify_id,
 				'customer_name' => $order->name,
