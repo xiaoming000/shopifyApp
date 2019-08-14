@@ -25,6 +25,8 @@ Route::group(['namespace'=>'Order'],function(){
 
 	Route::get("/order", "OrderController@index");
 	Route::get("/order/getOrder", "OrderController@getOrder");
+	Route::get("/order/isSend", "OrderController@isSend");
+	Route::get("/order/isSendEmail", "OrderController@isSendEmail");
 
 });
 

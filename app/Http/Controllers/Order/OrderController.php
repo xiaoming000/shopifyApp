@@ -16,11 +16,44 @@ class OrderController extends Controller
 	/**默认index获取已付款订单 */
 	public function index(Request $request)
 	{
+		//Request filter , shop_token_id(shop_name), 订单编号, 发货状态, 
+
+		$orders = Order::where([
+			'financial_status' => 'paid',
+			'is_close' => 0,
+			])->get();
+	
+		$data = [];
+		foreach($orders as $k => $order) {
+			$data[$k] = [
+				'order_id' => $order->shopify_id,
+				'customer_name' => $order->name,
+				'order_total_price' => $order->total_price,
+				'order_is_send' => $order->is_send,
+				'order_is_send_email' => $order->is_send_email,
+				'order_is_close' => $order->is_close,
+				];
+			
+			$order_variants = OrderVariant::where(['order_id' => $order->id])->get();
+			$goods = [];
+			foreach($order_variants as $order_variant) {
+				$variant = Variant::where(['shopify_variant_id' => $order_variant->variant_id])->first();
+				if (isset($variant)){
+					$goods[] = [
+						'title' => $variant->title,
+						'url' => $variant->ali_item_url,
+					];
+				}
+			}
+			$data[$k]['goods'] = $goods;
+		}
 		
-		
+		// dd($data);
+
+		return view('order.order', ['data' => $data]);
 	}
 
-	/**接口测试获取数据 */
+	/**接口测试同步获取数据, 到时放入计划 */
 	public function getOrder()
 	{
 		//获取每个店铺的订单写入order表，同时更新variant stock
@@ -43,9 +76,16 @@ class OrderController extends Controller
 						// \var_dump($order['created_at']);die;
 
 						if (empty($order_exist)) {
+							if ( empty($order['customer']['first_name']) or empty($order['customer']['last_name']) ) {
+								$name = $order['email'];
+							} else {
+								$name = $order['customer']['first_name'] . $order['customer']['last_name'];
+							}
+
 							$order_instance = Order::create([
 								'shopify_id' => $order['id'],
 								'shop_token_id' => $shop_token->id,
+								'name' => $name,
 								'email'	=> $order['email'],
 								'phone' => $order['phone'],
 								'total_price' => $order['total_price'],
@@ -79,6 +119,51 @@ class OrderController extends Controller
 				echo 'Message: ' . $e->getMessage();
 			}
 			
+		}
+	}
+
+	/**订单发货api */
+	public function isSend(Request $request)
+	{
+		$order_id = $request->input('order_id');
+		$shop_name = $request->input('shop_name');
+
+		$shop_token = ShopToken::where(['shop' => $shop_name])->first();
+		$order = Order::where([
+			'shopify_id' => $order_id,
+			'shop_token_id' => $shop_token->id,
+		])->first();
+
+		if (isset($order)) {
+			$order->is_send = 0;
+			$order->save();
+		}
+
+		die;
+
+	}
+
+	public function isSendEmail(Request $request)
+	{
+		$order_id = $request->input('order_id');
+		$shop_name = $request->input('shop_name');
+
+		$shop_token = ShopToken::where(['shop' => $shop_name])->first();
+
+		$order = Order::where([
+			'shopify_id' => $order_id,
+			'shop_token_id' => $shop_token->id,
+		])->first();
+
+		$common = new Common();
+		if ($common->sendMail($shop_name, $order->email)){
+			// return view('order.order');
+			// dd('ok');
+			// update order is_send_email
+			$order->is_send_email = 1;
+			$order->save();
+		} else {
+			dd('failed');
 		}
 	}
 }
