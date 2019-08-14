@@ -4,7 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
-use OrderVariant;
+use App\Models\OrderVariant;
+use App\Models\ShopToken;
 
 class Order extends Model
 {
@@ -15,5 +16,10 @@ class Order extends Model
     public function hasManyOrderVariant()
     {
         return $this->hasMany(OrderVariant::class);
+    }
+
+    public function belongsToShop()
+    {
+        return $this->belongsTo(ShopToken::class);
     }
 }

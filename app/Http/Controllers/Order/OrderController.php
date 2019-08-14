@@ -13,16 +13,37 @@ use Exception;
 
 class OrderController extends Controller
 {
+
 	/**默认index获取已付款订单 */
 	public function index(Request $request)
 	{
 		//Request filter , shop_token_id(shop_name), 订单编号, 发货状态, 
 
-		$orders = Order::where([
-			'financial_status' => 'paid',
-			'is_close' => 0,
-			])->get();
-	
+		$sessions = $request->session()->get('shops');
+		$sessions = json_decode($sessions,true);
+		// dd($sessions);
+		// dd($session[0]['shop_id']);
+		$shop_id = [];
+		foreach ($sessions as $session) {
+			$shop_id[] = $session['shop_id'];
+		}
+		// dd($shop_id);
+
+		$filter_order_id = $request->input('order_id') ?? '';
+		// dd($filter_order_id);
+		if (!empty($filter_order_id)) {
+			$orders = Order::where([
+				'financial_status' => 'paid',
+				'is_close' => 0,
+				'shopify_id' => $filter_order_id,
+				])->WhereIn('shop_token_id', $shop_id)->get();
+		} else {
+			$orders = Order::where([
+				'financial_status' => 'paid',
+				'is_close' => 0,
+				])->WhereIn('shop_token_id', $shop_id)->get();
+		}
+
 		$data = [];
 		foreach($orders as $k => $order) {
 			$data[$k] = [
@@ -32,6 +53,7 @@ class OrderController extends Controller
 				'order_is_send' => $order->is_send,
 				'order_is_send_email' => $order->is_send_email,
 				'order_is_close' => $order->is_close,
+				'shop_name'	=> ShopToken::find($order->shop_token_id)->shop,
 				];
 			
 			$order_variants = OrderVariant::where(['order_id' => $order->id])->get();
@@ -126,37 +148,39 @@ class OrderController extends Controller
 	public function isSend(Request $request)
 	{
 		$order_id = $request->input('order_id');
-		$shop_name = $request->input('shop_name');
 
-		$shop_token = ShopToken::where(['shop' => $shop_name])->first();
 		$order = Order::where([
 			'shopify_id' => $order_id,
-			'shop_token_id' => $shop_token->id,
 		])->first();
 
-		if (isset($order)) {
-			$order->is_send = 0;
+		if (!empty($order)) {
+			$order->is_send = 1;
 			$order->save();
+
+			$common = new Common();
+
+			$shop_name = ShopToken::find($order->shop_token_id)->shop;
+			// dd($shop_name);
+			if ($common->sendMail($shop_name, $order->email)){
+				$order->is_send_email = 1;
+				$order->save();
+			}
 		}
 
-		die;
+		return redirect('order');
 
 	}
 
 	public function isSendEmail(Request $request)
 	{
 		$order_id = $request->input('order_id');
-		$shop_name = $request->input('shop_name');
-
-		$shop_token = ShopToken::where(['shop' => $shop_name])->first();
 
 		$order = Order::where([
 			'shopify_id' => $order_id,
-			'shop_token_id' => $shop_token->id,
 		])->first();
 
 		$common = new Common();
-		if ($common->sendMail($shop_name, $order->email)){
+		if ($common->sendMail(ShopToken::find($order->shop_token_id)->shop, $order->email)){
 			// return view('order.order');
 			// dd('ok');
 			// update order is_send_email

@@ -3,9 +3,19 @@
 @section('content')
 
 <div style="padding: 15px;">
+    <form class="layui-form" action="">
+        <div class="layui-form-item">
+        <input type="text" name="title" placeholder="订单号" class="layui-input">
+            <button type="button" class="layui-btn">搜索</button>
+        <div class="layui-form-item">
+    </form>
+</div>
+
+<div style="padding: 15px;">
     <table class="layui-table" lay-filter="demo">
         <tbody>
             <tr>
+                <td>店铺名称</td>
                 <td>订单编号</td>
                 <td>订单客户</td>
                 <td>商品列表</td>
@@ -16,6 +26,7 @@
             </tr>
             @foreach ($data as $d)
             <tr>
+                <td>{{ $d['shop_name'] }}</td>
                 <td>{{ $d['order_id'] }}</td>
                 <td>{{ $d['customer_name'] }}</td>
                 <td>
@@ -35,14 +46,14 @@
                     @if ($d['order_is_send_email'])
                         <p>已发送</p>
                     @else
-                        <button type="button" class="layui-btn">发邮件</button>
+                        <p>未发送</p>
                     @endif
                 </td>
                 <td>
-                    @if ($d['order_is_send_email'])
-                        <p>已关闭</p>
+                    @if ($d['order_is_close'])
+                        <p>已取消</p>
                     @else
-                        <button type="button" class="layui-btn">关闭订单</button>
+                        <button type="button" class="layui-btn">取消订单</button>
                     @endif
                 </td>
             </tr>
