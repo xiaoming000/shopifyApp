@@ -17,7 +17,10 @@
                         @else
                             <li class="list-group-item"><a href="{{url('admin/shop/0')}}">ALL</a></li>
                             @foreach($shops as $shop)
-                                <li class="list-group-item"><a href="{{url('admin/shop/'.$shop['id'])}}">{{$shop['shop_name'] ?? ''}}</a></li>
+                                <li class="list-group-item">
+                                    <a href="{{url('admin/shop/'.$shop['id'])}}">{{$shop['shop_name'] ?? ''}}</a>
+                                    <a href="{{url("https://".$shop['shop'].'/admin/apps')}}" style="float: right;color: #ccc;">删除</a>
+                                </li>
                             @endforeach
                         @endif
                     </ul>

@@ -148,4 +148,24 @@ class AppAuthController extends Controller
         return true;
     }
 
+    /**
+     * webhooks 删除用户商店数据
+     * @param Request $request
+     * @author xiaoxiaoming
+     * @date 2019/8/15
+     */
+    public function redact(Request $request){
+        $input = $request->all();
+        // 日志写入
+        $logs  = date("Y-m-d H:i:s").":\n";
+        $logs .= json_encode($input)." 数据库操作失败\n";
+        file_put_contents(storage_path().'/logs/redact/'.date("Y-m-d H:i:s").'.log', $logs."\n",FILE_APPEND);
+        // 删除用户数据
+        $shop = isset($input['shop_domain']) ? $input['shop_domain'] : '';
+        if ($shop){
+            $shopInfo = new ShopToken();
+            $shopInfo -> delByShop($shop);
+        }
+    }
+
 }

@@ -62,5 +62,23 @@ class ShopToken extends Model
             return false;
         }
     }
+
+    /**
+     * 删除
+     * @param array $shop
+     * @return bool
+     */
+    public function  delByShop($shops=[]){
+        if (empty($shops)){
+            return false;
+        }
+        try{
+            DB::table('shop_token')->whereIn('shop',$shops)->delete();
+            return true;
+        }catch (\Exception $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
 }
 

@@ -15,6 +15,7 @@
 Route::get('/', "AppAuthController@index");
 Route::get('/confirmInstall', "AppAuthController@confirmInstall");
 Route::any('/register_shop', "AppAuthController@registerShop");
+Route::any('/shop/redact', "AppAuthController@redact");
 
 Route::group(['prefix'=>'admin','namespace'=>'Admin'],function(){
 
