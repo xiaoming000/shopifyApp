@@ -20,7 +20,12 @@ class OrderController extends Controller
 		//Request filter , shop_token_id(shop_name), 订单编号, 发货状态, 
 
 		$sessions = $request->session()->get('shops');
+		if (empty($sessions)) {
+			return redirect('home');
+		}
+		
 		$sessions = json_decode($sessions,true);
+
 		// dd($sessions);
 		// dd($session[0]['shop_id']);
 		$shop_id = [];
@@ -62,8 +67,9 @@ class OrderController extends Controller
 			foreach($order_variants as $order_variant) {
 				$variant = Variant::where(['shopify_variant_id' => $order_variant->variant_id])->first();
 				if (isset($variant)){
+
 					$goods[] = [
-						'title' => $variant->title,
+						'title' => $variant->title ?? 'no title',
 						'url' => $variant->ali_item_url,
 					];
 				}

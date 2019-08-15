@@ -53,7 +53,7 @@
           <a class="" href="javascript:;">订单管理</a>
           <dl class="layui-nav-child">
             <dd><a href="{{url('order')}}">已付款订单</a></dd>
-            <dd><a href="javascript:;">其他订单</a></dd>
+            <!-- <dd><a href="javascript:;">其他订单</a></dd> -->
             <!-- <dd><a href="javascript:;">列表三</a></dd> -->
           </dl>
         </li>
