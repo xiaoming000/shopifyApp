@@ -43,5 +43,24 @@ class ShopToken extends Model
         }
         return $shops;
     }
+
+    /**
+     * 修改
+     * @param $where
+     * @param $update
+     * @return bool
+     */
+    public function updateShop($where, $update){
+        if (empty($where)){
+            return false;
+        }
+        try{
+            DB::table('shop_token')->where($where)->update($update);
+            return true;
+        }catch (\Exception $e){
+            echo $e->getMessage();
+            return false;
+        }
+    }
 }
 

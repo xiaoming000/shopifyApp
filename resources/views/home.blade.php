@@ -15,9 +15,9 @@
                         @if(empty($shops))
                             <li class="list-group-item">您还没有添加任何商店，去添加！</li>
                         @else
-                            <li class="list-group-item"><a href="{{url('admin/shop/0')}}">MANAGEMENT ALL</a></li>
+                            <li class="list-group-item"><a href="{{url('admin/shop/0')}}">ALL</a></li>
                             @foreach($shops as $shop)
-                                <li class="list-group-item"><a href="{{url('admin/shop/'.$shop['id'])}}">{{$shop['shop']}}</a></li>
+                                <li class="list-group-item"><a href="{{url('admin/shop/'.$shop['id'])}}">{{$shop['shop_name'] ?? ''}}</a></li>
                             @endforeach
                         @endif
                     </ul>

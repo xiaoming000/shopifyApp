@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShopToken;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Common;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
 /**
  * Class AppAuthController
@@ -90,10 +94,14 @@ class AppAuthController extends Controller
 		        echo "系统错误！";exit();
 	 		}
  		}
+ 		// 设置商店店铺名
+        $this->setShopName($shop);
         return redirect("home");
 	}
 
     /**
+     * @param Request $request
+     * @return bool|Factory|RedirectResponse|View
      * @author xiaoxiaoming
      * @date 2019/8/14
      * 用户商店添加
@@ -114,8 +122,30 @@ class AppAuthController extends Controller
                 return redirect()->away($sendUrl);
             }else{
                 echo "请求参数不完整！";
+                return false;
             }
         }
+    }
+
+    /**
+     * 获取用户的店铺名
+     * @param $shop
+     * @return bool
+     */
+    public function setShopName($shop){
+        $shopRequestUrl = 'https://' . $shop . '/admin/api/2019-07/shop.json';
+        $common = new Common();
+        $shopInfo = new ShopToken();
+        $access_token = $shopInfo->getTokenByShop($shop);
+        $result = $common -> shopifyHttp($shopRequestUrl,'get',[],$access_token);
+        $result = json_decode($result,true);
+        if (!isset($result['shop']['name'])){
+            echo "接口请求错误！";
+            return false;
+        }
+        $shop_name = $result['shop']['name'];
+        $shopInfo->updateShop([['shop','=',$shop]],['shop_name'=>$shop_name]);
+        return true;
     }
 
 }

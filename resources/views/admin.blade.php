@@ -26,7 +26,7 @@
     </ul>
     <ul class="layui-nav layui-layout-right">
 
-      <li class="layui-nav-item" style="margin-right: 50px;">
+      <li class="layui-nav-item" style="">
         <a href="javascript:;">
         <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
           @if(auth()->check())
@@ -36,7 +36,7 @@
         <dl class="layui-nav-child">
           @if(!empty(session('shops')))
             @foreach(json_decode(session('shops'),true) as $shop)
-              <dd><a href="">{{$shop['shop_name']}}</a></dd>
+              <dd><a href="">{{$shop['shop']}}</a></dd>
             @endforeach
           @endif
         </dl>
@@ -80,7 +80,7 @@
   
   <div class="layui-footer">
     <!-- 底部固定区域 -->
-    © layui.com
+{{--    © layui.com--}}
   </div>
 </div>
 <script src="/layui/layui.js"></script>
