@@ -7,6 +7,11 @@ use App\Http\Common;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Class AppAuthController
+ * @package App\Http\Controllers
+ * @author xiaoxiaoming @date 2019/8/14
+ */
 class AppAuthController extends Controller
 {
 
@@ -14,6 +19,11 @@ class AppAuthController extends Controller
 		return redirect('login');
 	}
 
+    /**
+     * 商店授权认证
+     * @author xiaoxiaoming
+     * @date 2019/8/14
+     */
 	public function confirmInstall(Request $request){
 		$res  = $request->input();
 		// $jsonStr = '{"code":"614b1ec66d025b39ee0b65b556595c00","hmac":"fc0378710f7b088d059d3e75b82b53ceb9f92361becb01ec47c056ed0d5d1f45","shop":"xn-4gq48l9y6ap6sf0q.myshopify.com","state":"test","timestamp":"1564664962"}';
@@ -83,6 +93,11 @@ class AppAuthController extends Controller
         return redirect("home");
 	}
 
+    /**
+     * @author xiaoxiaoming
+     * @date 2019/8/14
+     * 用户商店添加
+     */
 	public function registerShop(Request $request){
 //	    dd($request->method());
         if ($request->method() == "GET"){
@@ -92,8 +107,8 @@ class AppAuthController extends Controller
             // 跳转https://{shop}.myshopify.com/admin/oauth/authorize?client_id={api_key}&scope={scopes}&redirect_uri={redirect_uri}&state={nonce}&grant_options[]={access_mode}
             if ($shop) {
                 $shop = $shop.".myshopify.com";
-                $api_key = "ad95aafec51fd0c3f75287b1b1dc39a1";
-                $scopes  = "read_orders,write_orders,read_customers";
+                $api_key = env('CLIENT_ID');
+                $scopes  = "read_orders,write_orders,read_customers,write_products,read_products";
                 $redirectUrl = "https://shopify.xiaoxiaoming.net/index.php/confirmInstall";
                 $sendUrl = "https://".$shop."/admin/oauth/authorize?client_id=".$api_key."&scope=".$scopes."&redirect_uri=".$redirectUrl."&state=test";
                 return redirect()->away($sendUrl);

@@ -26,7 +26,7 @@
     </ul>
     <ul class="layui-nav layui-layout-right">
 
-      <li class="layui-nav-item" style="margin-right: 80px;">
+      <li class="layui-nav-item" style="margin-right: 50px;">
         <a href="javascript:;">
         <img src="http://t.cn/RCzsdCq" class="layui-nav-img">
           @if(auth()->check())
@@ -57,17 +57,17 @@
             <!-- <dd><a href="javascript:;">列表三</a></dd> -->
           </dl>
         </li>
-        <li class="layui-nav-item">
-          <a href="javascript:;">商品管理</a>
-          <dl class="layui-nav-child">
-            <dd><a href="javascript:;">列表一</a></dd>
-            <dd><a href="javascript:;">列表二</a></dd>
-            <dd><a href="">超链接</a></dd>
-          </dl>
-        </li>
-        <li class="layui-nav-item"><a href="">用户管理</a></li>
-        <li class="layui-nav-item"><a href="">配置管理</a></li>
-        <li class="layui-nav-item"><a href="">系统管理</a></li>
+{{--        <li class="layui-nav-item">--}}
+{{--          <a href="javascript:;">商品管理</a>--}}
+{{--          <dl class="layui-nav-child">--}}
+{{--            <dd><a href="javascript:;">列表一</a></dd>--}}
+{{--            <dd><a href="javascript:;">列表二</a></dd>--}}
+{{--            <dd><a href="">超链接</a></dd>--}}
+{{--          </dl>--}}
+{{--        </li>--}}
+{{--        <li class="layui-nav-item"><a href="">用户管理</a></li>--}}
+{{--        <li class="layui-nav-item"><a href="">配置管理</a></li>--}}
+{{--        <li class="layui-nav-item"><a href="">系统管理</a></li>--}}
       </ul>
     </div>
   </div>
