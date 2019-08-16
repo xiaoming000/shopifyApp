@@ -5,7 +5,7 @@
 <div style="padding: 15px;">
     <form class="layui-form" action="">
         <div class="layui-form-item">
-            <input type="text" name="title" placeholder="订单号" class="layui-input">
+            <input type="text" name="title" placeholder="订单号" class="layui-input layui-btn-radius  layui-btn-sm">
             <button type="button" class="layui-btn">搜索</button>
         <div class="layui-form-item">
     </form>
@@ -26,21 +26,21 @@
             </tr>
             @foreach ($data as $d)
             <tr>
-                <td>{{ $d['shop_name'] }}</td>
+                <td><a href = {{ $d['shop_url'] }}>{{ $d['shop_name'] }}</a></td>
                 <td>{{ $d['order_id'] }}</td>
                 <td>{{ $d['customer_name'] }}</td>
                 <td>
                     @foreach ($d['goods'] as $good)
-                        <a href= {{ $good['url'] }}>{{ $good['title'] }}</a></br>
+                        <a href= {{ $good['url'] }}>{{ $good['title'] }} x{{ $good['quantity'] }}</a></br>
                     @endforeach
                 </td>
-                <td>{{ $d['order_total_price'] }}$</td>
+                <td>${{ $d['order_total_price'] }}</td>
                 <td>
                     @if ($d['order_is_send'])
-                        <p>已发货</p>
+                        跟踪号{{ $d['order_tracking_num'] }}
                     @else
                         <input type="text" name="title" placeholder="跟踪号" class="layui-input">
-                        <button type="button" class="layui-btn">发货</button>
+                        <button type="button" class="layui-btn layui-btn-radius  layui-btn-sm">发货</button>
                     @endif
                 </td>
                 <td>
@@ -51,10 +51,10 @@
                     @endif
                 </td>
                 <td>
-                    @if ($d['order_is_close'])
+                    @if ($d['order_is_cancel'])
                         <p>已取消</p>
                     @else
-                        <button type="button" class="layui-btn">取消订单</button>
+                        <button type="button" class="layui-btn layui-btn-radius  layui-btn-sm">取消订单</button>
                     @endif
                 </td>
             </tr>

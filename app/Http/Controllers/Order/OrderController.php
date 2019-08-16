@@ -10,6 +10,7 @@ use App\Models\OrderVariant;
 use App\Models\ShopToken;
 use App\Models\Variant;
 use Exception;
+use Symfony\Component\VarDumper\Caster\RedisCaster;
 
 class OrderController extends Controller
 {
@@ -40,17 +41,20 @@ class OrderController extends Controller
 			$orders = Order::where([
 				'financial_status' => 'paid',
 				'is_close' => 0,
+				'is_cancel' => 0,
 				'shopify_id' => $filter_order_id,
 				])->WhereIn('shop_token_id', $shop_id)->get();
 		} else {
 			$orders = Order::where([
 				'financial_status' => 'paid',
 				'is_close' => 0,
+				'is_cancel' => 0,
 				])->WhereIn('shop_token_id', $shop_id)->get();
 		}
 
 		$data = [];
 		foreach($orders as $k => $order) {
+			$shop_token_table = ShopToken::find($order->shop_token_id);
 
 			$data[$k] = [
 				'order_id' => $order->shopify_id,
@@ -59,7 +63,10 @@ class OrderController extends Controller
 				'order_is_send' => $order->is_send,
 				'order_is_send_email' => $order->is_send_email,
 				'order_is_close' => $order->is_close,
-				'shop_name'	=> ShopToken::find($order->shop_token_id)->shop,
+				'order_is_cancel' => $order->is_cancel,
+				'shop_url'	=> 'http://www.' . $shop_token_table->shop,
+				'shop_name'	=> $shop_token_table->shop_name,
+				'order_tracking_num' => $order->tracking_num,
 				];
 			
 			$order_variants = OrderVariant::where(['order_id' => $order->id])->get();
@@ -71,6 +78,7 @@ class OrderController extends Controller
 					$goods[] = [
 						'title' => $variant->title ?? 'no title',
 						'url' => $variant->ali_item_url,
+						'quantity' => $order_variant->quantity,
 					];
 				}
 			}
@@ -155,6 +163,9 @@ class OrderController extends Controller
 	public function isSend(Request $request)
 	{
 		$order_id = $request->input('order_id');
+		$tracking_num = $request->input('tracking_num');
+
+		// 加判断
 
 		$order = Order::where([
 			'shopify_id' => $order_id,
@@ -170,6 +181,7 @@ class OrderController extends Controller
 			// dd($shop_name);
 			if ($common->sendMail($shop_name, $order->email)){
 				$order->is_send_email = 1;
+				$order->tracking_num = $tracking_num;
 				$order->save();
 			}
 		}
@@ -178,23 +190,20 @@ class OrderController extends Controller
 
 	}
 
-	public function isSendEmail(Request $request)
-	{
+	/**
+	 * 取消订单
+	 *
+	 * @return view('order')
+	 * @author dengweixiong
+	 */
+	public function isCancel(Request $request) {
 		$order_id = $request->input('order_id');
 
-		$order = Order::where([
-			'shopify_id' => $order_id,
-		])->first();
-
-		$common = new Common();
-		if ($common->sendMail(ShopToken::find($order->shop_token_id)->shop, $order->email)){
-			// return view('order.order');
-			// dd('ok');
-			// update order is_send_email
-			$order->is_send_email = 1;
-			$order->save();
-		} else {
-			dd('failed');
+		if (isset($order_id)) {
+			Order::where('shopify_id', $order_id)->update(['is_cancel' => 1]);
 		}
+
+		return redirect('order');
 	}
+
 }
