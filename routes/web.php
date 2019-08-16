@@ -27,7 +27,9 @@ Route::group(['prefix'=>'admin','namespace'=>'Admin'],function(){
 Route::group(['namespace'=>'Order'],function(){
 
 	Route::get("/order", "OrderController@index");
+	Route::get("order/paid", "OrderController@paid");
 	Route::get("/order/getOrder", "OrderController@getOrder");
+	Route::get("/order/getOrderAndTemp", "OrderController@getOrderAndTemp");
 	Route::get("/order/isSend", "OrderController@isSend");
 	Route::get("/order/isCancel", "OrderController@isCancel");
 
