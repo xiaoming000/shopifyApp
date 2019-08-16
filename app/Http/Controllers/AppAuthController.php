@@ -2,11 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ShopToken;
+use Illuminate\Contracts\View\Factory;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use App\Http\Common;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\View\View;
 
+/**
+ * Class AppAuthController
+ * @package App\Http\Controllers
+ * @author xiaoxiaoming @date 2019/8/14
+ */
 class AppAuthController extends Controller
 {
 
@@ -14,6 +23,11 @@ class AppAuthController extends Controller
 		return redirect('login');
 	}
 
+    /**
+     * 商店授权认证
+     * @author xiaoxiaoming
+     * @date 2019/8/14
+     */
 	public function confirmInstall(Request $request){
 		$res  = $request->input();
 		// $jsonStr = '{"code":"614b1ec66d025b39ee0b65b556595c00","hmac":"fc0378710f7b088d059d3e75b82b53ceb9f92361becb01ec47c056ed0d5d1f45","shop":"xn-4gq48l9y6ap6sf0q.myshopify.com","state":"test","timestamp":"1564664962"}';
@@ -80,9 +94,18 @@ class AppAuthController extends Controller
 		        echo "系统错误！";exit();
 	 		}
  		}
+ 		// 设置商店店铺名
+        $this->setShopName($shop);
         return redirect("home");
 	}
 
+    /**
+     * @param Request $request
+     * @return bool|Factory|RedirectResponse|View
+     * @author xiaoxiaoming
+     * @date 2019/8/14
+     * 用户商店添加
+     */
 	public function registerShop(Request $request){
 //	    dd($request->method());
         if ($request->method() == "GET"){
@@ -92,14 +115,56 @@ class AppAuthController extends Controller
             // 跳转https://{shop}.myshopify.com/admin/oauth/authorize?client_id={api_key}&scope={scopes}&redirect_uri={redirect_uri}&state={nonce}&grant_options[]={access_mode}
             if ($shop) {
                 $shop = $shop.".myshopify.com";
-                $api_key = "ad95aafec51fd0c3f75287b1b1dc39a1";
-                $scopes  = "read_orders,write_orders,read_customers";
+                $api_key = env('CLIENT_ID');
+                $scopes  = "read_orders,write_orders,read_customers,write_products,read_products";
                 $redirectUrl = "https://shopify.xiaoxiaoming.net/index.php/confirmInstall";
                 $sendUrl = "https://".$shop."/admin/oauth/authorize?client_id=".$api_key."&scope=".$scopes."&redirect_uri=".$redirectUrl."&state=test";
                 return redirect()->away($sendUrl);
             }else{
                 echo "请求参数不完整！";
+                return false;
             }
+        }
+    }
+
+    /**
+     * 获取用户的店铺名
+     * @param $shop
+     * @return bool
+     */
+    public function setShopName($shop){
+        $shopRequestUrl = 'https://' . $shop . '/admin/api/2019-07/shop.json';
+        $common = new Common();
+        $shopInfo = new ShopToken();
+        $access_token = $shopInfo->getTokenByShop($shop);
+        $result = $common -> shopifyHttp($shopRequestUrl,'get',[],$access_token);
+        $result = json_decode($result,true);
+        if (!isset($result['shop']['name'])){
+            echo "接口请求错误！";
+            return false;
+        }
+        $shop_name = $result['shop']['name'];
+        $shopInfo->updateShop([['shop','=',$shop]],['shop_name'=>$shop_name]);
+        return true;
+    }
+
+    /**
+     * webhooks 删除用户商店数据
+     * @param Request $request
+     * @author xiaoxiaoming
+     * @date 2019/8/15
+     */
+    public function redact(Request $request){
+        $input = $request->all();
+        // 日志写入
+        $logs  = date("Y-m-d H:i:s").":\n";
+        $logs .= json_encode($input)." 数据库操作失败\n";
+        file_put_contents(storage_path().'/logs/redact/'.date("Y-m-d H:i:s").'.log', $logs."\n",FILE_APPEND);
+        // 删除用户数据
+        $shop = isset($input['shop_domain']) ? $input['shop_domain'] : '';
+        if ($shop){
+            $shopInfo = new ShopToken();
+            $shopInfo -> delByShop($shop);
         }
     }
 

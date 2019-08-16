@@ -43,14 +43,14 @@ class IndexController extends Controller
                 $shop_id    = $shop['id'];
                 $shop_name  = $shop['shop'];
                 $shop_token = $shop['access_token'];
-                $shop = ['shop_id'=>$shop_id,'shop_name' => $shop_name,'shop_token'=>$shop_token];
+                $shop = ['shop_id'=>$shop_id,'shop_name' => $shop_name,'shop_token'=>$shop_token,'shop'=>$shop['shop_name']];
                 $shops[] = $shop;
             }
         }else{
             $shopInfo = $shopToken->getAuthShop([$id]);
             $shop_name = $shopInfo[0]['shop'];
             $shop_token = $shopInfo[0]['access_token'];
-            $shops = [['shop_id'=>$id,'shop_name' => $shop_name,'shop_token'=>$shop_token]];
+            $shops = [['shop_id'=>$id,'shop_name' => $shop_name,'shop_token'=>$shop_token,'shop'=>$shopInfo[0]['shop_name']]];
             session(['shops' => json_encode($shops)]);
         }
         session(['shops' => json_encode($shops)]);
