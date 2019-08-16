@@ -67,7 +67,7 @@
 {{--        </li>--}}
 {{--        <li class="layui-nav-item"><a href="">用户管理</a></li>--}}
 {{--        <li class="layui-nav-item"><a href="">配置管理</a></li>--}}
-{{--        <li class="layui-nav-item"><a href="">系统管理</a></li>--}}
+        <li class="layui-nav-item"><a href="">配置管理</a></li>
       </ul>
     </div>
   </div>

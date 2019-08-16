@@ -116,7 +116,8 @@ class AppAuthController extends Controller
             if ($shop) {
                 $shop = $shop.".myshopify.com";
                 $api_key = env('CLIENT_ID');
-                $scopes  = "read_orders,write_orders,read_customers,write_products,read_products";
+                $scopes  = env('CLIENT_SCOPES');
+//                $scopes  = "read_orders,write_orders,read_customers,write_products,read_products";
                 $redirectUrl = "https://shopify.xiaoxiaoming.net/index.php/confirmInstall";
                 $sendUrl = "https://".$shop."/admin/oauth/authorize?client_id=".$api_key."&scope=".$scopes."&redirect_uri=".$redirectUrl."&state=test";
                 return redirect()->away($sendUrl);
