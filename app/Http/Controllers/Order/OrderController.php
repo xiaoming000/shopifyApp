@@ -12,7 +12,6 @@ use App\Models\ShopToken;
 use App\Models\Variant;
 use Exception;
 use Illuminate\Support\Facades\DB;
-use Symfony\Component\VarDumper\Caster\RedisCaster;
 
 class OrderController extends Controller
 {
@@ -107,17 +106,76 @@ class OrderController extends Controller
 	}
 
 	public function paid(Request $request) {
+
+		// 选择进入店铺token
+		$sessions = $request->session()->get('shops');
+		if (empty($sessions)) {
+			return redirect('home');
+		}
+		
+		$sessions = json_decode($sessions,true);
+
+		$shop_id = [];
+		foreach ($sessions as $session) {
+			$shop_id[] = $session['shop_id'];
+		}
+
+		// dd($shop_id);
+		
+		// 订单筛选条件
+		$filter_data = [
+			'financial_status' => 'paid',
+			'is_close' => 0,
+			'is_cancel' => 0,
+		];
+
+		$filter_order_id = $request->input('order_no');
+		if (isset($filter_order_id)) {
+			$filter_data['shopify_id'] = $filter_order_id;
+		}
+
+		$filter_shop_name = $request->input('merchant_no');
+		if (isset($filter_shop_name)) {
+			$filter_data['shop_name'] = $filter_shop_name;
+		}
+
+		$filter_data_time = [];
+
+		$filter_created_at = $request->input('start_time');
+		if (isset($filter_created_at)) {
+			$filter_data_time['shopify_created_at'] = date('Y-m-d H:i:s', strtotime($filter_created_at));
+		} else {
+			$filter_data_time['shopify_created_at'] = date('Y-m-d H:i:s', strtotime('1970-1-1 00:00:00'));
+		}
+
+		$filter_updated_at = $request->input('end_time');
+		if (isset($filter_updated_at)) {
+			$filter_data_time['shopify_updated_at'] = date('Y-m-d H:i:s', strtotime($filter_updated_at));
+		} else {
+			$filter_data_time['shopify_updated_at'] = date('Y-m-d H:i:s', strtotime('2050-1-1 00:00:00'));
+		}
+		
 		// 进行分页查询
+		// 默认不返回close, cancel
 		$page = $request->input('page');
 		$limit = $request->input('limit');
 		$start = ($page - 1) * $limit;
 
-		// 订单总数
-		$order_nums = order::all();
+		// 符合订单总数
+		$order_nums = OrderTemporary::where($filter_data)
+				->WhereIn('shop_id', $shop_id)
+				->where('shopify_created_at', '>', $filter_data_time['shopify_created_at'])
+				->where('shopify_updated_at', '<', $filter_data_time['shopify_updated_at'])
+				->get();
 
 		// 分页进行查询条件记录
-		$order_list = DB::table('order_temporary')->offset($start)->limit($limit)->get();
-		// dd($order_list);
+		$order_list = DB::table('order_temporary')
+			->where($filter_data)
+			->WhereIn('shop_id', $shop_id)
+			->where('shopify_created_at', '>', $filter_data_time['shopify_created_at'])
+			->where('shopify_updated_at', '<', $filter_data_time['shopify_updated_at'])
+			->offset($start)->limit($limit)
+			->get();
 
 		$datas = ['code' => 0, 'msg' => ''];
 		// 将总的记录条数传给前台进行渲染分页
@@ -129,7 +187,11 @@ class OrderController extends Controller
 	}
 
 
-	/**接口测试同步获取数据, 到时放入计划 */
+	/**
+	 * 测试接口, 已废弃
+	 *
+	 * @author dengweixiong
+	 */
 	public function getOrder()
 	{
 		//获取每个店铺的订单写入order表，同时更新variant stock
@@ -229,6 +291,9 @@ class OrderController extends Controller
 								$name = $order['customer']['first_name'] . $order['customer']['last_name'];
 							}
 
+							$shopify_created_at = date('Y-m-d H:i:s', strtotime($order['created_at']));
+							$shopify_updated_at = date('Y-m-d H:i:s', strtotime($order['updated_at']));
+
 							$order_instance = Order::create([
 								'shopify_id' => $order['id'],
 								'shop_token_id' => $shop_token->id,
@@ -237,8 +302,8 @@ class OrderController extends Controller
 								'phone' => $order['phone'],
 								'total_price' => $order['total_price'],
 								'financial_status' => $order['financial_status'],
-								'shopify_created_at' => $order['created_at'],
-								'shopify_updated_at' => $order['updated_at'],
+								'shopify_created_at' => $shopify_created_at,
+								'shopify_updated_at' => $shopify_updated_at,
 							]);
 
 							foreach($order['line_items'] as $k => $line_item) {
@@ -247,10 +312,6 @@ class OrderController extends Controller
 									'variant_id' => $line_item['variant_id'],
 									'quantity' => $line_item['quantity'],
 								]);
-
-								$recode[$k] = [
-									'quantity' => $line_item['quantity'],
-								];
 
 								$variant = Variant::where(['shopify_variant_id' => $line_item['variant_id']])->first();
 								if (isset($variant)) {
@@ -262,11 +323,13 @@ class OrderController extends Controller
 									$recode[$k] = [
 										'title' => $variant->title,
 										'url'	=> $variant->ali_item_url,
+										'quantity' => $line_item['quantity'],
 									];
 								} else {
 									$recode[$k] = [
 										'title' => 'no title',
 										'url'	=> 'no url',
+										'quantity' => $line_item['quantity'],
 									];
 								}
 
@@ -275,15 +338,16 @@ class OrderController extends Controller
 
 							$order_temp_instance = OrderTemporary::create([
 								'shopify_id' => $order['id'],
+								'shop_id' => $shop_token->id,
 								'shop_name' => $shop_token->shop_name,
 								'shop_url' => 'http://www.' . $shop_token->shop,
 								'customer_name' => $name,
 								'email'	=> $order['email'],
 								'phone' => $order['phone'],
-								'total_price' => $order['total_price'],
+								'total_price' => '$' . $order['total_price'],
 								'financial_status' => $order['financial_status'],
-								'shopify_created_at' => $order['created_at'],
-								'shopify_updated_at' => $order['updated_at'],
+								'shopify_created_at' => $shopify_created_at,
+								'shopify_updated_at' => $shopify_updated_at,
 								'goods'	=> json_encode($recode),
 							]);
 						}
@@ -302,28 +366,68 @@ class OrderController extends Controller
 	/**订单发货api */
 	public function isSend(Request $request)
 	{
-		$order_id = $request->input('order_id');
-		$tracking_num = $request->input('tracking_num');
+		$order_id = $request->input('order_id') ?? '';
+		$tracking_num = $request->input('tracking_num') ?? '';
 
-		// 加判断
 
 		$order = Order::where([
 			'shopify_id' => $order_id,
 		])->first();
 
-		if (!empty($order)) {
+		$order_temporary = OrderTemporary::where([
+			'shopify_id' => $order_id,
+		])->first();
+
+
+		if (!empty($order) and !empty($order_temporary)) {
+			if($order_temporary->is_send_email == 1) {
+				return redirect('order');
+			}
+
 			$order->is_send = 1;
 			$order->save();
 
+			$order_temporary->is_send = 1;
+			$order_temporary->save();
+
 			$common = new Common();
 
-			$shop_name = ShopToken::find($order->shop_token_id)->shop;
-			// dd($shop_name);
+			$shop_token = ShopToken::find($order->shop_token_id);
+			$shop_name = $shop_token->shop_name;
+
 			if ($common->sendMail($shop_name, $order->email)){
 				$order->is_send_email = 1;
 				$order->tracking_num = $tracking_num;
 				$order->save();
+
+				$order_temporary->is_send_email = 1;
+				$order_temporary->tracking_num = $tracking_num;
+				$order_temporary->save();
 			}
+
+			// 设置shopify为已发货状态
+			// $url = 'https://' . $shop_token->shop . '/admin/api/2019-07/orders/' . $order_id . '/fulfillments.json';
+			// "https://fab66.myshopify.com/admin/api/2019-07/orders/1166064091198/fulfillments.json"
+			// dd($url);
+
+			// $data = [
+			// 	'fulfillment' => [
+			// 		'location_id' => '19203653694',
+			// 		'tracking_number' => '675764433',
+			// 		'tracking_company' => 'tracking_company',
+			// 		'line_items' => [
+			// 			'id' => '20643687006270'
+			// 		]
+			// 	]
+			// ];
+			
+
+			// dd(json_encode($data));
+			
+			// $result = $common -> shopifyHttp($url, 'post', $data, $shop_token->access_token);
+			// $result = \json_decode($result, true);
+			// dd($result);
+
 		}
 
 		return redirect('order');
@@ -337,10 +441,31 @@ class OrderController extends Controller
 	 * @author dengweixiong
 	 */
 	public function isCancel(Request $request) {
-		$order_id = $request->input('order_id');
+		$order_id = $request->input('order_id') ?? '';
 
-		if (isset($order_id)) {
-			Order::where('shopify_id', $order_id)->update(['is_cancel' => 1]);
+		if (empty($order_id)) {
+			return redirect('order');
+		}
+
+		$order = Order::where('shopify_id', $order_id)->first();
+		$order->update(['is_cancel' => 1]);
+		$order_temporary = OrderTemporary::where('shopify_id', $order_id)->first();
+		$order_temporary->update(['is_cancel' => 1]);
+
+		// 同步更新取消shopify上面订单状态
+		if (!empty($order)) {
+			$shop_token = ShopToken::find($order->shop_token_id);
+			$url = 'https://' . $shop_token->shop . '/admin/api/2019-07/orders/' . $order_id . '/cancel.json';
+			
+			$common = new Common();
+			$result = $common -> shopifyHttp($url, 'post', [], $shop_token->access_token);
+			$result = \json_decode($result, true);
+			
+			// 提交失败, 回退
+			if ((empty($result['order']['id']))) {
+				$order->update(['is_cancel' => 0]);
+				$order_temporary->update(['is_cancel' => 0]);
+			}
 		}
 
 		return redirect('order');

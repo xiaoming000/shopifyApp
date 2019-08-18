@@ -58,7 +58,7 @@ class Common
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // 从证书中检查SSL加密算法是否存在
         if ($method == 'post') {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $arr);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($arr));
         }
         // 采集
         $output = curl_exec($ch);
@@ -77,7 +77,7 @@ class Common
     }
 
     // shopify,http_curl请求 通过session自动设置access_token请求头
-    public function getData($shop_token, $api_name, $method="get", $arr=""){
+    public function getData($shop_token, $api_name, $method="get", $arr=[]){
         $access_token = $shop_token->access_token;
         $url = 'https://' . $shop_token->shop . '/admin/api/2019-07/' . $api_name . '.json';
         // dd($url);
@@ -94,7 +94,7 @@ class Common
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE); // 从证书中检查SSL加密算法是否存在
         if ($method == 'post') {
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $arr);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($arr));
         }
         // 采集
         $output = curl_exec($ch);
@@ -141,9 +141,9 @@ class Common
             $mail->CharSet    = 'UTF-8';
 
             //Recipients
-            $mail->setFrom('861579607@qq.com', '861579607');
+            $mail->setFrom('861579607@qq.com', $shop_name);
             // $mail->addAddress('dengweixiong@sailvan.com', '839948469');     // Add a recipient
-            $mail->addAddress($email, $shop_name);     // Add a recipient
+            $mail->addAddress($email, $email);     // Add a recipient
 
             // Attachments 附件
             // $mail->addAttachment('/var/tmp/file.tar.gz');         // Add attachments
@@ -152,7 +152,7 @@ class Common
             // Content
             $mail->isHTML(true);                                  // Set email format to HTML
             $mail->Subject = 'shipping imformation';
-            $mail->Body    = 'Your goods have been shipped.';
+            $mail->Body    = 'Your goods have been shipped      ---' . $shop_name;
             // $mail->AltBody = 'test This is the body in plain text for non-HTML mail clients';
 
             $mail->send();
