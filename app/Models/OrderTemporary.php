@@ -4,6 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * 临时订单表
+ *
+ * @author dengweixiong
+ */
 class OrderTemporary extends Model
 {
     protected $table = 'order_temporary';

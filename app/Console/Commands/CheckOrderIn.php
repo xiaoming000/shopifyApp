@@ -7,6 +7,11 @@ use App\Http\Controllers\Order\OrderController;
 use App\Models\ShopToken;
 use Illuminate\Console\Command;
 
+/**
+ * 定时任务, 定时更新shopify产生的订单数据
+ *
+ * @author dengweixiong
+ */
 class CheckOrderIn extends Command
 {
     /**
@@ -40,6 +45,7 @@ class CheckOrderIn extends Command
      */
     public function handle()
     {
+        // 定时执行任务
         $order_controller = new OrderController();
         $order_controller->getOrderAndTemp();
     }

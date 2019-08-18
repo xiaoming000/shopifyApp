@@ -70,6 +70,7 @@
                     {{-- <li class="layui-nav-item"><a href="">用户管理</a></li>--}}
                     {{-- <li class="layui-nav-item"><a href="">配置管理</a></li>--}}
                     {{-- <li class="layui-nav-item"><a href="">系统管理</a></li>--}}
+                    <li class="layui-nav-item"><a href="">配置管理</a></li>
                 </ul>
             </div>
         </div>
@@ -228,7 +229,7 @@
 
                 if (layEvent === 'send') { //发货
                     if (obj.data.is_send_email) {
-                        layer.msg('已发送');
+                        layer.msg('已发送, 别重复操作');
                     } else {                       
                         $.ajax({
                             url: '/order/isSend',
@@ -262,7 +263,9 @@
                         });
                     }
 
-                } else if (layEvent === 'cancel') { //删除
+                } 
+                
+                if (layEvent === 'cancel' && obj.data.is_send == 0) { //删除
                     layer.confirm('确定取消订单' + obj.data.shopify_id + '?', function(index) {
                         //向服务端发送取消指令
                         $.ajax({
@@ -298,6 +301,10 @@
                             },
                         });
                     });
+                }
+
+                if (layEvent === 'cancel' && obj.data.is_send == 1) {
+                    layer.msg('已发货, 暂时不支持取消订单');
                 }
             });
         });

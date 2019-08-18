@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\DB;
 use App\Models\OrderVariant;
 use App\Models\ShopToken;
 
+/**
+ * 订单表
+ *
+ * @author dengweixiong
+ */
 class Order extends Model
 {
     protected $table = 'order';

@@ -76,11 +76,19 @@ class Common
 
     }
 
-    // shopify,http_curl请求 通过session自动设置access_token请求头
+    /**
+     * 通过店铺的token获取所有订单
+     *
+     * @param [type] $shop_token 店铺名称
+     * @param [type] $api_name API名称
+     * @param string $method 请求方法
+     * @param array $arr 请求参数
+     * @return string 请求回应
+     * @author dengweixiong
+     */
     public function getData($shop_token, $api_name, $method="get", $arr=[]){
         $access_token = $shop_token->access_token;
         $url = 'https://' . $shop_token->shop . '/admin/api/2019-07/' . $api_name . '.json';
-        // dd($url);
 
         $header[] = "X-Shopify-Access-Token: ".$access_token;
 
@@ -108,13 +116,17 @@ class Common
                 // 请求正确返回结果
                 // return json_decode($output, true);
                 return $output;
-            }      
-
+            }
     }
     
 
     /**
-     * 发送邮件
+     * 本地发送邮件模块
+     *
+     * @param [type] $shop_name 店铺名称
+     * @param [type] $email 邮件地址
+     * @return boolean
+     * @author dengweixiong
      */
     public function sendMail($shop_name, $email)
     {
@@ -164,6 +176,33 @@ class Common
             return false;
         }
 
+    }
+
+    /**
+     * php post请求
+     *
+     * @param [type] $url
+     * @param array $data
+     * @param array $header
+     * @param integer $timeout
+     * @return string
+     * @author dengweixiong
+     */
+    public function doCurlPostRequest($url, $data = [], $header = [], $timeout = 5){
+        if($url == '' || $timeout <=0){
+          return false;
+        }
+        
+        $curl = curl_init((string)$url);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false); // 信任任何证书
+        curl_setopt($curl, CURLOPT_POSTFIELDS, http_build_query($data));
+        curl_setopt($curl, CURLOPT_POST,true);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER,true);
+        curl_setopt($curl, CURLOPT_TIMEOUT,(int)$timeout);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header); //添加自定义的http header
+
+        return curl_exec($curl);
     }
 
 }
