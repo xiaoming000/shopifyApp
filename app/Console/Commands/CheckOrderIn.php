@@ -3,9 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Http\Common;
+use App\Http\Controllers\Order\OrderController;
 use App\Models\ShopToken;
 use Illuminate\Console\Command;
 
+/**
+ * 定时任务, 定时更新shopify产生的订单数据
+ *
+ * @author dengweixiong
+ */
 class CheckOrderIn extends Command
 {
     /**
@@ -20,7 +26,7 @@ class CheckOrderIn extends Command
      *
      * @var string
      */
-    protected $description = '检测订单';
+    protected $description = '同步获取订单';
 
     /**
      * Create a new command instance.
@@ -39,12 +45,8 @@ class CheckOrderIn extends Command
      */
     public function handle()
     {
-        //获取每个店铺的订单写入order表，同时更新variant stock
-        foreach (ShopToken::class as $shop_token){
-            $response = Common::getOrder($shop_token);
-            $response = json_decode($response, true);
-
-            var_dump($response);
-        }
+        // 定时执行任务
+        $order_controller = new OrderController();
+        $order_controller->getOrderAndTemp();
     }
 }

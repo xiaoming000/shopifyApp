@@ -5,6 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * 商品信息表
+ *
+ * @author dengweixiong
+ */
 class Variant extends Model
 {
     protected $table = 'variant_test1';

@@ -70,6 +70,7 @@
                     {{-- <li class="layui-nav-item"><a href="">用户管理</a></li>--}}
                     {{-- <li class="layui-nav-item"><a href="">配置管理</a></li>--}}
                     {{-- <li class="layui-nav-item"><a href="">系统管理</a></li>--}}
+                    <li class="layui-nav-item"><a href="">配置管理</a></li>
                 </ul>
             </div>
         </div>
@@ -106,7 +107,7 @@
                         <button id="reloadtable" class="layui-btn layui-btn-normal"><i class="layui-icon">&#x1002;</i>刷新</button>
                     </div>
                 </div>
-                <table class="layui-hide" id="test"></table>
+                <table class="layui-hide" id="test" lay-filter="tableclick"></table>
             </div>
 
         </div>
@@ -116,6 +117,7 @@
             {{-- © layui.com--}}
         </div>
     </div>
+
     <script src="/layui/layui.js"></script>
     <script>
         //JavaScript代码区域
@@ -125,7 +127,6 @@
         });
     </script>
 
-    <script src="/layui/layui.js"></script>
     <script>
         // 加载需要用到的模块，如果有使用到自定义模块也在此加载
         layui.use(['laydate', 'form', 'table'], function() {
@@ -150,41 +151,46 @@
                 method: 'get' /* 使用什么协议，默认的是GET */ ,
                 cellMinWidth: 60 /* 最小单元格宽度 */ ,
                 cols: [
-                        [
-                            {
-                                field: 'shop_name',
-                                title: '店铺',
-                                align: 'center',
-                            }, {
-                                field: 'shopify_id',
-                                title: '订单编号',
-                                align: 'center'
-                            }, {
-                                field: 'customer_name',
-                                title: '客户',
-                                align: 'center'
-                            }, {
-                                field: 'goods',
-                                title: '商品列表',
-                                align: 'center',
-                            }, {
-                                field: 'total_price',
-                                title: '订单总价',
-                                align: 'center'
-                            }, {
-                                field: 'is_send',
-                                title: '发货状态',
-                                align: 'center'
-                            }, {
-                                field: 'is_send_email',
-                                title: '邮件状态',
-                                align: 'center'
-                            }, {
-                                field: 'is_cancel',
-                                title: '订单状态',
-                                align: 'center'
-                            }
-                        ]
+                        [{
+                            field: 'shop_name',
+                            title: '店铺',
+                            align: 'center',
+                        }, {
+                            field: 'shopify_id',
+                            title: '订单编号',
+                            align: 'center'
+                        }, {
+                            field: 'customer_name',
+                            title: '客户',
+                            align: 'center'
+                        }, {
+                            field: 'goods',
+                            title: '商品列表',
+                            align: 'center',
+                        }, {
+                            field: 'total_price',
+                            title: '订单总价',
+                            align: 'center',
+                            sort:  'true',
+                        }, {
+                            field: 'is_send',
+                            title: '发货状态',
+                            align: 'center',
+                        }, {
+                            field: 'is_send_email',
+                            title: '邮件状态',
+                            align: 'center',
+                        }, {
+                            field: 'shopify_created_at',
+                            title: '创建时间',
+                            align: 'center',
+                            sort:  true,
+                        }, {
+                            field: 'options',
+                            title: '操作',
+                            align: 'center',
+                            toolbar: '#options',
+                        }]
                     ] // 使用sort将自动为我们添加排序事件，完全不用人工干预
                     ,
                 page: true,
@@ -212,11 +218,103 @@
                 var type = $(this).data('type');
                 active[type] ? active[type].call(this) : '';
             });
-            $("#reloadtable").click(function(){
+            $("#reloadtable").click(function() {
                 active.reload();
+            });
+
+            table.on('tool(tableclick)', function(obj) { //注：tool是工具条事件名，test是table原始容器的属性 lay-filter="对应的值"
+                var data = obj.data; //获得当前行数据
+                var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
+                var tr = obj.tr; //获得当前行 tr 的DOM对象
+
+                if (layEvent === 'send') { //发货
+                    if (obj.data.is_send_email) {
+                        layer.msg('已发送, 别重复操作');
+                    } else {                       
+                        $.ajax({
+                            url: '/order/isSend',
+                            type: 'get',
+                            data: {
+                                order_id: obj.data.shopify_id
+                            },
+                            beforeSend: function() {
+                                this.index = layer.load(0, {
+                                    shade: [0.5, '#393D49']
+                                });
+                            },
+                            success: function(data) {
+                                if (data.status == 'error') {
+                                    layer.msg(data.msg, {
+                                        icon: 5
+                                    }); //失败的表情
+                                    o.removeClass('layui-btn-disabled');
+                                    return;
+                                } else {
+                                    layer.msg(data.msg, {
+                                        // icon: 6, //成功的表情
+                                        time: 0001 //1秒关闭（如果不配置，默认是3秒）
+                                    }, function() {
+                                        location.reload();
+                                    });
+                                }
+                            },
+                            complete: function() {
+                            },
+                        });
+                    }
+
+                } 
+                
+                if (layEvent === 'cancel' && obj.data.is_send == 0) { //删除
+                    layer.confirm('确定取消订单' + obj.data.shopify_id + '?', function(index) {
+                        //向服务端发送取消指令
+                        $.ajax({
+                            url: '/order/isCancel',
+                            type: 'get',
+                            data: {
+                                order_id: obj.data.shopify_id
+                            },
+                            beforeSend: function() {
+                                this.index = layer.load(0, {
+                                    shade: [0.5, '#393D49']
+                                });
+                            },
+                            success: function(data) {
+                                if (data.status == 'error') {
+                                    layer.msg(data.msg, {
+                                        icon: 5
+                                    }); //失败的表情
+                                    o.removeClass('layui-btn-disabled');
+                                    return;
+                                } else {
+                                    layer.msg(data.msg, {
+                                        // icon: 6, //成功的表情
+                                        time: 0001 //1秒关闭（如果不配置，默认是3秒）
+                                    }, function() {
+                                        location.reload();
+                                    });
+                                }
+                            },
+                            complete: function() {
+                                // obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
+                                // layer.close(index);
+                            },
+                        });
+                    });
+                }
+
+                if (layEvent === 'cancel' && obj.data.is_send == 1) {
+                    layer.msg('已发货, 暂时不支持取消订单');
+                }
             });
         });
     </script>
+
+    <script type="text/html" id="options">
+        <a class="layui-btn layui-btn-xs" lay-event="send">发货</a>
+        <a class="layui-btn layui-btn-xs" lay-event="cancel">取消订单</a>
+    </script>
+
 
 </body>
 
