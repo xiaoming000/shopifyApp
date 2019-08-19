@@ -6,12 +6,15 @@ use Illuminate\Http\Request;
 
 class  GoodsConfigController extends Controller{
 
-    public function AutoPush(Request $request){
+    public function autoPush(Request $request){
 
-        echo "";
-
+        return view('config.goods');
     }
 
+//    public function autoPushSet(Request $request){
+//
+//
+//    }
 
 
 }

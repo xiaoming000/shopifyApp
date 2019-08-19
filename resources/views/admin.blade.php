@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   <title>Aphrodite</title>
   <link rel="stylesheet" href="/layui/css/layui.css">
+  <script src="/layui/layui.js"></script>
 </head>
 <body class="layui-layout-body">
 <div class="layui-layout layui-layout-admin">
@@ -67,7 +68,7 @@
 {{--        </li>--}}
 {{--        <li class="layui-nav-item"><a href="">用户管理</a></li>--}}
 {{--        <li class="layui-nav-item"><a href="">配置管理</a></li>--}}
-        <li class="layui-nav-item"><a href="">配置管理</a></li>
+        <li class="layui-nav-item"><a href="{{url('config/goods')}}">配置管理</a></li>
       </ul>
     </div>
   </div>
@@ -83,7 +84,6 @@
 {{--    © layui.com--}}
   </div>
 </div>
-<script src="/layui/layui.js"></script>
 <script>
 //JavaScript代码区域
 layui.use('element', function(){

@@ -35,6 +35,10 @@ Route::group(['namespace'=>'Order'],function(){
 
 });
 
+Route::group(['prefix'=>'config','namespace'=>'Config'],function (){
+    Route::get("/goods", "GoodsConfigController@autoPush");
+});
+
 
 Auth::routes();
 
