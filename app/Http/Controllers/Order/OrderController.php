@@ -109,8 +109,14 @@ class OrderController extends Controller
 	 *
 	 * @author dengweixiong
 	 */
-	public function index()
+	public function index(Request $request)
 	{
+
+		$sessions = $request->session()->get('shops');
+		if (empty($sessions)) {
+			return redirect('home');
+		}
+
 		return view('order.order_new');
 	}
 
@@ -191,7 +197,7 @@ class OrderController extends Controller
 			->where('shopify_updated_at', '<', $filter_data_time['shopify_updated_at'])
 			->offset($start)->limit($limit)
 			->get();
-
+		
 		$datas = ['code' => 0, 'msg' => ''];
 		// 将总的记录条数传给前台进行渲染分页
 		$datas['count'] = count($order_nums);
