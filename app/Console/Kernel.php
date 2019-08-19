@@ -29,8 +29,8 @@ class Kernel extends ConsoleKernel
         // $schedule->command('inspire')
         //          ->hourly();
 
-        // 每三十分钟更新同步shopify订单数据
-        $schedule->command('command:CheckOrderIn')->everyThirtyMinutes();
+        // 每五分钟更新同步shopify订单数据
+        $schedule->command('command:CheckOrderIn')->everyFiveMinutes();
     }
 
     /**
