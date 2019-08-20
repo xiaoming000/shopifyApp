@@ -96,6 +96,8 @@ class AppAuthController extends Controller
  		}
  		// 设置商店店铺名
         $this->setShopName($shop);
+ 		// 商店删除webhooks设置
+        $this->setWebhooks($shop,'app/uninstalled');
         return redirect("home");
 	}
 
@@ -155,12 +157,61 @@ class AppAuthController extends Controller
      * @author xiaoxiaoming
      * @date 2019/8/15
      */
-    public function redact(Request $request){
+    public function update(Request $request){
         $input = $request->all();
         // 日志写入
-        $logs  = date("Y-m-d H:i:s").":\n";
-        $logs .= json_encode($input)." 数据库操作失败\n";
-        file_put_contents(storage_path().'/logs/redact/'.date("Y-m-d H:i:s").'.log', $logs."\n",FILE_APPEND);
+        $logs  = date("Y-m-d H:i:s")." 删除用户商店数据:\n";
+        $logs .= json_encode($input)."\n";
+        file_put_contents(storage_path().'/logs/'.date("Y-m-d H:i:s").'.log', $logs."\n",FILE_APPEND);
+        // 删除用户数据
+        $shop = isset($input['shop_domain']) ? $input['shop_domain'] : '';
+        if ($shop){
+            $shopInfo = new ShopToken();
+            $shopInfo -> delByShop($shop);
+        }
+    }
+
+    /**
+     * 应用webhooks设置
+     */
+    public function setWebhooks($shop,$topic=''){
+        $reqUrl = 'https://' . $shop . '/admin/api/2019-07/webhooks.json';
+        if (empty($topic)){
+            return false;
+        }
+        $shopInfo = new ShopToken();
+        $access_token = $shopInfo->getTokenByShop($shop);
+        $header = [
+            "X-Shopify-Topic: $topic",
+            "X-Shopify-Hmac-Sha256: XWmrwMey6OsLMeiZKwP4FppHH3cmAiiJJAweH5Jo4bM=",
+            "X-Shopify-Shop-Domain: $shop",
+            "X-Shopify-API-Version: 2019-07",
+            "X-Shopify-Access-Token: ".$access_token
+        ];
+        $para = array(
+            "webhook"=>array(
+                "topic"   =>$topic,
+                "address" => env("APP_URL")."/shop/del",
+                "format"  => "json"
+            ),
+        );
+        $common = new Common();
+        $common->doCurlPostRequest($reqUrl,$para,$header);
+        return true;
+    }
+
+    /**
+     * @param Request $request
+     * @author xiaoxiaoming
+     * @date 2019/8/20
+     * webhooks 删除
+     */
+    public function del(Request $request){
+        $input = $request->all();
+        // 日志写入
+        $logs  = date("Y-m-d H:i:s")." 删除用户商店数据:\n";
+        $logs .= json_encode($input)."\n";
+        file_put_contents(storage_path().'/logs/del'.date("Y-m-d").'.log', $logs."\n",FILE_APPEND);
         // 删除用户数据
         $shop = isset($input['shop_domain']) ? $input['shop_domain'] : '';
         if ($shop){

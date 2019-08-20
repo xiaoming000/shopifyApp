@@ -48,8 +48,14 @@
             //     return false;
             // });
         });
-        $("#push-open").click(function () {
-            alert("");
+        //主动加载jquery模块
+        layui.use(['jquery', 'layer'], function(){
+            var $ = layui.$ //重点处
+                ,layer = layui.layer;
+            //后面就跟你平时使用jQuery一样
+            $("#push-open").click(function () {
+                alert("");
+            });
         });
     </script>
 
